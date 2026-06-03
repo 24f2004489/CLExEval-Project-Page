@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CLExEval</title>
+  <meta name="description" content="CLExEval: A human-in-the-loop framework for qualitative evaluation of LLM clinical reasoning.">
+  <style>
+    :root {
+      --ink: #111111;
+      --muted: #5f6368;
+      --line: #e8e8e8;
+      --soft: #f8f8f6;
+      --accent: #0b3d91;
+      --accent-soft: #eef4ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #ffffff;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(980px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 58px 0 54px;
+    }
+
+    .paper {
+      text-align: center;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mark {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 18px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--soft);
+      font-family: Arial, sans-serif;
+      font-size: 30px;
+      color: var(--accent);
+    }
+
+    h1 {
+      max-width: 860px;
+      margin: 0 auto 20px;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+
+    .authors {
+      margin: 0 auto 8px;
+      max-width: 900px;
+      font-size: clamp(20px, 3vw, 30px);
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .affiliations,
+    .contact,
+    .note {
+      margin: 4px auto;
+      color: var(--muted);
+      font-size: 18px;
+      font-family: Arial, sans-serif;
+    }
+
+    .links {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+      font-family: Arial, sans-serif;
+    }
+
+    .links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 1px solid #d8dce3;
+      border-radius: 6px;
+      color: var(--accent);
+      background: #ffffff;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .links a:hover {
+      background: var(--accent-soft);
+      border-color: #b8c9ea;
+    }
+
+    section {
+      padding: 34px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      letter-spacing: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    p {
+      margin: 0 0 14px;
+      font-size: 19px;
+    }
+
+    .summary {
+      max-width: 820px;
+      margin: 0 auto;
+      text-align: center;
+      color: #222222;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      margin-top: 22px;
+      font-family: Arial, sans-serif;
+    }
+
+    .stat {
+      background: #ffffff;
+      padding: 18px 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pipeline {
+      display: grid;
+      gap: 10px;
+      font-family: Arial, sans-serif;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 18px;
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .step:first-child {
+      border-top: 0;
+    }
+
+    .step b {
+      color: var(--accent);
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      font-family: Arial, sans-serif;
+    }
+
+    .status {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 18px;
+      background: #ffffff;
+    }
+
+    .status h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+
+    .status p {
+      margin: 0;
+      font-size: 15px;
+      color: var(--muted);
+      font-family: Arial, sans-serif;
+    }
+
+    footer {
+      padding-top: 26px;
+      text-align: center;
+      color: var(--muted);
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    @media (max-width: 780px) {
+      main {
+        width: min(100% - 24px, 980px);
+        padding-top: 34px;
+      }
+
+      .stats,
+      .status-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stats,
+      .status-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .authors {
+        font-size: 21px;
+      }
+
+      .links a {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="paper">
+      <div class="mark" aria-hidden="true">CE</div>
+      <h1>CLExEval: A Human-in-the-Loop Framework for Qualitative Evaluation of LLM Clinical Reasoning</h1>
+      <p class="authors">Ajmal M., Abin R., Afthab S. K., Jawadh A. K., Jerin J., Preslav Nakov, Zhuohan Xie</p>
+      <p class="affiliations">MBZUAI · IIT Madras · Calicut Medical College</p>
+      <p class="contact">ajmal.m@mbzuai.ac.ae · zhuohan.xie@mbzuai.ac.ae</p>
+      <p class="note">Release materials are being prepared for public access.</p>
+      <nav class="links" aria-label="Project links">
+        <a href="https://24f2004489.github.io/CLExEval-Project-Page/">Project</a>
+        <a href="https://huggingface.co/datasets/AjmalMIITM/RARECASE-2000">RARECASE-2000</a>
+        <a href="https://github.com/24f2004489/CLExEval">Code</a>
+      </nav>
+    </header>
+
+    <section>
+      <p class="summary">CLExEval studies clinical reasoning in language models through expert-curated rare cases, progressive information masking, model output evaluation, and human expert assessment across a seven-dimensional rubric.</p>
+      <div class="stats" aria-label="Dataset and evaluation statistics">
+        <div class="stat"><strong>500</strong><span>rare narratives selected</span></div>
+        <div class="stat"><strong>2,000</strong><span>RARECASE release instances</span></div>
+        <div class="stat"><strong>400</strong><span>model outputs evaluated</span></div>
+        <div class="stat"><strong>5,600</strong><span>expert-scored datapoints</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Pipeline</h2>
+      <div class="pipeline">
+        <div class="step"><b>Data curation</b><span>Expert selection of 500 rare narratives from MultiCaRe.</span></div>
+        <div class="step"><b>Progressive masking</b><span>Five versions per case: narrative plus levels 0-3.</span></div>
+        <div class="step"><b>Model evaluation</b><span>HuatuoGPT-o1-8B and GPT-4o-mini are evaluated across 200 instances each.</span></div>
+        <div class="step"><b>Expert assessment</b><span>Two medical-resident raters score outputs using the CLExEval rubric.</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Release Status</h2>
+      <div class="status-grid">
+        <div class="status">
+          <h3>Project</h3>
+          <p>This page is live as a lightweight project preview while the full research page is finalized.</p>
+        </div>
+        <div class="status">
+          <h3>RARECASE-2000</h3>
+          <p>The dataset release is in preparation pending documentation and release review.</p>
+        </div>
+        <div class="status">
+          <h3>Code</h3>
+          <p>Evaluation scripts and reproducibility materials will be released after cleanup.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      CLExEval · Public release materials in preparation
+    </footer>
+  </main>
+</body>
+</html>
