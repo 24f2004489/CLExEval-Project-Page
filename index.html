@@ -39,20 +39,6 @@
       border-bottom: 1px solid var(--line);
     }
 
-    .mark {
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 18px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      border-radius: 50%;
-      background: var(--soft);
-      font-family: Arial, sans-serif;
-      font-size: 30px;
-      color: var(--accent);
-    }
-
     h1 {
       max-width: 860px;
       margin: 0 auto 20px;
@@ -71,12 +57,27 @@
     }
 
     .affiliations,
+    .equal,
     .contact,
     .note {
       margin: 4px auto;
       color: var(--muted);
       font-size: 18px;
       font-family: Arial, sans-serif;
+    }
+
+    .authors sup {
+      font-size: 0.52em;
+      font-weight: 600;
+    }
+
+    .affiliations {
+      max-width: 820px;
+      line-height: 1.5;
+    }
+
+    .equal {
+      font-size: 16px;
     }
 
     .links {
@@ -225,10 +226,10 @@
 <body>
   <main>
     <header class="paper">
-      <div class="mark" aria-hidden="true">CE</div>
       <h1>CLExEval: A Human-in-the-Loop Framework for Qualitative Evaluation of LLM Clinical Reasoning</h1>
-      <p class="authors">Ajmal M., Abin R., Afthab S. K., Jawadh A. K., Jerin J., Preslav Nakov, Zhuohan Xie</p>
-      <p class="affiliations">MBZUAI · IIT Madras · Calicut Medical College</p>
+      <p class="authors">Ajmal M.<sup>1,2</sup>, Abin R.<sup>3,*</sup>, Afthab S. K.<sup>3,*</sup>, Jawadh A. K.<sup>3,*</sup>, Jerin J.<sup>3,*</sup>, Preslav Nakov<sup>1</sup>, Zhuohan Xie<sup>1</sup></p>
+      <p class="affiliations"><sup>1</sup>MBZUAI · <sup>2</sup>IIT Madras · <sup>3</sup>Calicut Medical College</p>
+      <p class="equal"><sup>*</sup>Abin R., Afthab S. K., Jawadh A. K., and Jerin J. contributed equally.</p>
       <p class="contact">ajmal.m@mbzuai.ac.ae · zhuohan.xie@mbzuai.ac.ae</p>
       <p class="note">Release materials are being prepared for public access.</p>
       <nav class="links" aria-label="Project links">
@@ -244,16 +245,18 @@
     </section>
 
     <section>
-      <figure class="figure pipeline-figure">
-        <img src="assets/clexeval-pipeline.png" alt="CLExEval pipeline covering data curation, progressive masking, model evaluation, and expert assessment.">
-        <figcaption>Overview of the CLExEval pipeline, including case curation, progressive information masking, model evaluation, and expert assessment.</figcaption>
+      <h2>Inside the Mind of a Clinical AI</h2>
+      <figure class="figure">
+        <img src="assets/clexeval-clinical-ai.png" alt="CLExEval illustration showing hidden clinical reality, model thinking trace, final output trace, and divergent human versus machine verdict.">
+        <figcaption>Inside the mind of a clinical AI: CLExEval highlights reasoning-output mismatch, latent knowledge, verbosity bias, and hallucination approval in automated judging.</figcaption>
       </figure>
     </section>
 
     <section>
-      <figure class="figure">
-        <img src="assets/clexeval-clinical-ai.png" alt="CLExEval illustration showing hidden clinical reality, model thinking trace, final output trace, and divergent human versus machine verdict.">
-        <figcaption>Inside the mind of a clinical AI: CLExEval highlights reasoning-output mismatch, latent knowledge, verbosity bias, and hallucination approval in automated judging.</figcaption>
+      <h2>CLExEval Pipeline</h2>
+      <figure class="figure pipeline-figure">
+        <img src="assets/clexeval-pipeline.png" alt="CLExEval pipeline covering data curation, progressive masking, model evaluation, and expert assessment.">
+        <figcaption>Overview of the CLExEval pipeline, including case curation, progressive information masking, model evaluation, and expert assessment.</figcaption>
       </figure>
     </section>
 
