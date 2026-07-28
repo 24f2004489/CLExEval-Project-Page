@@ -3,284 +3,1157 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CLExEval</title>
-  <meta name="description" content="CLExEval: A human-in-the-loop framework for qualitative evaluation of LLM clinical reasoning.">
+  <meta name="theme-color" content="#ffffff">
+  <title>CLExEval | Clinical Reasoning Evaluation</title>
+  <meta name="description" content="CLExEval is a human-in-the-loop framework for qualitative evaluation of LLM clinical reasoning.">
+  <link rel="icon" type="image/png" href="assets/clexeval-icon.png">
   <style>
     :root {
-      --ink: #111111;
-      --muted: #5f6368;
-      --line: #e8e8e8;
-      --soft: #f8f8f6;
-      --accent: #0b3d91;
-      --accent-soft: #eef4ff;
+      --ink: #11151b;
+      --navy: #123b72;
+      --navy-deep: #09294f;
+      --green: #177248;
+      --orange: #d95d21;
+      --red: #b52b2b;
+      --muted: #626b76;
+      --soft: #f5f7f8;
+      --paper: #ffffff;
+      --line: #dfe4e8;
+      --line-strong: #b9c3cc;
+      --sans: "Aptos", "Segoe UI", Arial, sans-serif;
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      --content: 1120px;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       color: var(--ink);
-      background: #ffffff;
-      font-family: Georgia, "Times New Roman", serif;
-      line-height: 1.55;
+      background: var(--paper);
+      font-family: var(--sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+
+    .scroll-progress {
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      left: 0;
+      height: 2px;
+      background: var(--navy);
+      transform: scaleX(0);
+      transform-origin: left;
+      will-change: transform;
+    }
+
+    .nav {
+      width: min(var(--content), calc(100% - 40px));
+      height: 58px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .wordmark {
+      color: var(--navy-deep);
+      font-size: 20px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      color: var(--navy);
+    }
+
+    .nav-links a[aria-current="true"] {
+      color: var(--navy-deep);
+      text-decoration: underline;
+      text-decoration-color: var(--orange);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 7px;
     }
 
     main {
-      width: min(980px, calc(100% - 36px));
-      margin: 0 auto;
-      padding: 58px 0 54px;
+      overflow: hidden;
     }
 
-    .paper {
-      text-align: center;
-      padding-bottom: 32px;
-      border-bottom: 1px solid var(--line);
+    .hero {
+      width: min(var(--content), calc(100% - 40px));
+      min-height: min(820px, calc(100vh - 58px));
+      margin: 0 auto;
+      padding: clamp(64px, 9vh, 104px) 0 46px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hero-copy {
+      min-width: 0;
+      max-width: 1000px;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hero-title-lockup {
+      display: flex;
+      align-items: center;
+      gap: clamp(14px, 2vw, 22px);
+    }
+
+    .hero-logo {
+      width: clamp(64px, 8vw, 96px);
+      height: clamp(72px, 9vw, 110px);
+      flex: 0 0 auto;
+      object-fit: contain;
     }
 
     h1 {
-      max-width: 860px;
-      margin: 0 auto 20px;
-      font-size: clamp(32px, 5vw, 52px);
-      line-height: 1.08;
-      letter-spacing: 0;
+      margin: 0;
+      color: var(--navy-deep);
+      font-family: var(--serif);
+      font-size: clamp(64px, 10vw, 118px);
       font-weight: 700;
+      letter-spacing: 0;
+      line-height: 0.88;
+    }
+
+    .subtitle {
+      max-width: 890px;
+      margin: 26px 0 30px;
+      font-family: var(--serif);
+      font-size: clamp(25px, 3.3vw, 42px);
+      line-height: 1.16;
+      overflow-wrap: anywhere;
     }
 
     .authors {
-      margin: 0 auto 8px;
-      max-width: 900px;
-      font-size: clamp(20px, 3vw, 30px);
-      line-height: 1.35;
-      font-weight: 700;
-    }
-
-    .affiliations,
-    .equal,
-    .contact,
-    .note {
-      margin: 4px auto;
-      color: var(--muted);
-      font-size: 18px;
-      font-family: Arial, sans-serif;
+      max-width: 1020px;
+      margin: 0;
+      color: #2b333c;
+      font-family: var(--serif);
+      font-size: clamp(17px, 2vw, 22px);
+      font-weight: 600;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
     }
 
     .authors sup {
-      font-size: 0.52em;
-      font-weight: 600;
+      color: var(--navy);
+      font-family: var(--sans);
+      font-size: 0.58em;
+      font-weight: 800;
     }
 
-    .affiliations {
-      max-width: 820px;
-      line-height: 1.5;
+    .authors a {
+      color: inherit;
+      text-decoration-color: #a8b8c8;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.16em;
+      transition: color 160ms ease, text-decoration-color 160ms ease;
+    }
+
+    .authors a:hover,
+    .authors a:focus-visible {
+      color: var(--navy);
+      text-decoration-color: var(--navy);
+      outline: none;
+    }
+
+    .affiliations,
+    .equal {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
     }
 
     .equal {
-      font-size: 16px;
+      margin-top: 2px;
     }
 
-    .links {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 28px;
-      font-family: Arial, sans-serif;
+    .hero-actions {
+      width: min(100%, 820px);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 32px;
     }
 
-    .links a {
+    .action {
+      min-width: 0;
+      min-height: 42px;
+      padding: 9px 14px;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 10px 16px;
-      border: 1px solid #d8dce3;
-      border-radius: 6px;
-      color: var(--accent);
-      background: #ffffff;
+      justify-content: space-between;
+      gap: 9px;
+      border: 1px solid var(--navy-deep);
+      border-radius: 5px;
+      background: var(--navy-deep);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 750;
       text-decoration: none;
-      font-size: 18px;
-      font-weight: 600;
+      transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
     }
 
-    .links a:hover {
-      background: var(--accent-soft);
-      border-color: #b8c9ea;
+    .action:hover,
+    .action:focus-visible {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: #ffffff;
+      transform: translateY(-1px);
     }
 
-    section {
-      padding: 34px 0;
-      border-bottom: 1px solid var(--line);
+    .hero-index {
+      margin-top: 52px;
+      padding-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .hero-index span {
+      display: block;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .band {
+      border-top: 1px solid var(--line);
+    }
+
+    .band-soft {
+      background: var(--soft);
+    }
+
+    .section-inner {
+      width: min(var(--content), calc(100% - 40px));
+      margin: 0 auto;
+      padding: clamp(62px, 8vw, 104px) 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 42px;
+      margin-bottom: 38px;
+    }
+
+    .section-kicker {
+      margin: 6px 0 0;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
 
     h2 {
-      margin: 0 0 12px;
-      font-size: 24px;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(34px, 5vw, 58px);
+      font-weight: 600;
       letter-spacing: 0;
-      font-family: Arial, sans-serif;
+      line-height: 1.05;
     }
 
-    p {
-      margin: 0 0 14px;
+    .abstract-copy {
+      max-width: 890px;
+      margin-left: auto;
+      font-family: var(--serif);
+      font-size: clamp(20px, 2.1vw, 27px);
+      line-height: 1.62;
+    }
+
+    .abstract-copy p {
+      margin: 0;
+    }
+
+    .abstract-copy strong {
+      color: var(--navy-deep);
+      font-weight: 700;
+    }
+
+    .findings {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: 52px;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .finding {
+      min-height: 180px;
+      padding: 24px 20px 22px 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .finding + .finding {
+      padding-left: 20px;
+    }
+
+    .finding:last-child {
+      border-right: 0;
+    }
+
+    .finding-value {
+      display: block;
+      color: var(--navy-deep);
+      font-family: var(--serif);
+      font-size: clamp(34px, 4vw, 51px);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .finding:nth-child(2) .finding-value {
+      color: var(--green);
+    }
+
+    .finding:nth-child(3) .finding-value {
+      color: var(--orange);
+    }
+
+    .finding:nth-child(4) .finding-value {
+      color: var(--red);
+    }
+
+    .finding-title {
+      display: block;
+      margin-top: 14px;
+      font-weight: 800;
+    }
+
+    .finding-note {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .evidence {
+      margin: 0;
+    }
+
+    .evidence-frame {
+      padding: clamp(10px, 2vw, 20px);
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .figure-open {
+      position: relative;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      display: block;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: zoom-in;
+      font: inherit;
+      text-align: inherit;
+    }
+
+    .figure-open:focus-visible {
+      outline: 3px solid var(--orange);
+      outline-offset: 4px;
+    }
+
+    .figure-open::after {
+      content: "+";
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--navy-deep);
+      box-shadow: 0 4px 14px rgba(9, 41, 79, 0.12);
+      font-family: var(--sans);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1;
+      transition: background 160ms ease, transform 160ms ease;
+    }
+
+    .figure-open:hover::after,
+    .figure-open:focus-visible::after {
+      background: #ffffff;
+      transform: scale(1.06);
+    }
+
+    .evidence img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    figcaption {
+      max-width: 850px;
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-family: var(--serif);
+      font-size: 15px;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .pipeline-frame {
+      padding: 10px;
+    }
+
+    .release {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 70px;
+      align-items: start;
+    }
+
+    .release-copy {
+      max-width: 390px;
+      color: var(--muted);
+      font-family: var(--serif);
       font-size: 19px;
     }
 
-    .abstract {
-      max-width: 900px;
-      margin: 0 auto;
+    .release-list {
+      border-top: 1px solid var(--line-strong);
     }
 
-    .abstract p {
-      text-align: justify;
-    }
-
-    .figure {
-      margin: 0;
-    }
-
-    .figure img {
-      display: block;
-      width: min(100%, 920px);
-      height: auto;
-      margin: 0 auto;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: #ffffff;
-    }
-
-    .figure figcaption {
-      max-width: 860px;
-      margin: 12px auto 0;
-      color: var(--muted);
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .pipeline-figure img {
-      width: min(100%, 1100px);
-    }
-
-    .status-grid {
+    .release-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      font-family: Arial, sans-serif;
+      grid-template-columns: 160px 1fr auto;
+      gap: 20px;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
     }
 
-    .status {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 18px;
-      background: #ffffff;
+    .release-row strong {
+      color: var(--navy-deep);
     }
 
-    .status h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      color: var(--accent);
-    }
-
-    .status p {
-      margin: 0;
-      font-size: 15px;
+    .release-row span {
       color: var(--muted);
-      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    .release-row a {
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .citation-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 70px;
+      align-items: start;
+    }
+
+    .citation-layout > * {
+      min-width: 0;
+    }
+
+    .citation-copy {
+      max-width: 390px;
+      color: var(--muted);
+      font-family: var(--serif);
+      font-size: 19px;
+    }
+
+    .citation-block {
+      min-width: 0;
+      overflow: hidden;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+      background: var(--paper);
+    }
+
+    .citation-toolbar {
+      min-height: 54px;
+      padding: 9px 12px 9px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .citation-label {
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .copy-citation {
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: var(--paper);
+      color: var(--navy-deep);
+      cursor: pointer;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 800;
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+
+    .copy-citation:hover,
+    .copy-citation:focus-visible {
+      border-color: var(--navy);
+      background: #f4f8fc;
+      outline: none;
+    }
+
+    .citation-block pre {
+      margin: 0;
+      padding: 22px;
+      overflow-x: hidden;
+      background: #f8fafb;
+      color: #18314c;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      tab-size: 2;
+    }
+
+    .citation-block code {
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .copy-status {
+      min-height: 25px;
+      margin: 0;
+      padding: 5px 18px 8px;
+      color: var(--green);
+      font-size: 12px;
+      text-align: right;
     }
 
     footer {
-      padding-top: 26px;
-      text-align: center;
-      color: var(--muted);
-      font-family: Arial, sans-serif;
-      font-size: 14px;
+      border-top: 1px solid var(--line);
     }
 
-    @media (max-width: 780px) {
-      main {
-        width: min(100% - 24px, 980px);
-        padding-top: 34px;
+    .footer-inner {
+      width: min(var(--content), calc(100% - 40px));
+      min-height: 152px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .footer-inner strong {
+      color: var(--navy-deep);
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .figure-dialog {
+      width: min(96vw, 1500px);
+      max-width: none;
+      max-height: 94vh;
+      margin: auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      overflow: visible;
+    }
+
+    .figure-dialog::backdrop {
+      background: rgba(5, 16, 29, 0.88);
+      backdrop-filter: blur(4px);
+    }
+
+    .dialog-shell {
+      position: relative;
+      max-height: 94vh;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+      overflow: auto;
+    }
+
+    .dialog-image {
+      width: auto;
+      max-width: 100%;
+      max-height: calc(94vh - 82px);
+      margin: 0 auto;
+      display: block;
+    }
+
+    .dialog-caption {
+      margin: 12px 42px 0;
+      color: var(--muted);
+      font-family: var(--serif);
+      font-size: 14px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .dialog-close {
+      position: absolute;
+      z-index: 2;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--navy-deep);
+      cursor: pointer;
+      font-family: var(--sans);
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .dialog-close:hover,
+    .dialog-close:focus-visible {
+      border-color: var(--navy);
+      outline: none;
+      background: #ffffff;
+    }
+
+    body:has(.figure-dialog[open]) {
+      overflow: hidden;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        min-height: auto;
       }
 
-      .status-grid {
+      .hero-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero-index {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .section-head,
+      .release,
+      .citation-layout {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .findings {
         grid-template-columns: 1fr 1fr;
       }
+
+      .finding:nth-child(2) {
+        border-right: 0;
+      }
+
+      .finding:nth-child(-n + 2) {
+        border-bottom: 1px solid var(--line);
+      }
     }
 
-    @media (max-width: 520px) {
-      .status-grid {
-        grid-template-columns: 1fr;
+    @media (max-width: 640px) {
+      .nav {
+        width: min(100% - 28px, var(--content));
+      }
+
+      .nav-links a:not(:last-child) {
+        display: none;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero,
+      .section-inner,
+      .footer-inner {
+        width: min(100% - 28px, var(--content));
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 50px;
+      }
+
+      h1 {
+        font-size: clamp(54px, 18vw, 72px);
+      }
+
+      .hero-title-lockup {
+        gap: 10px;
+      }
+
+      .hero-logo {
+        width: 56px;
+        height: 64px;
+      }
+
+      .subtitle {
+        margin-top: 22px;
+        font-size: 22px;
+        line-height: 1.22;
       }
 
       .authors {
-        font-size: 21px;
+        font-size: 16px;
+        line-height: 1.52;
       }
 
-      .links a {
+      .affiliations,
+      .equal {
+        font-size: 12px;
+      }
+
+      .hero-actions {
         width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .action {
+        width: 100%;
+      }
+
+      .hero-index,
+      .findings {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-index {
+        gap: 12px;
+      }
+
+      .finding,
+      .finding + .finding {
+        min-height: auto;
+        padding: 22px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .finding:last-child {
+        border-bottom: 0;
+      }
+
+      .release-row {
+        grid-template-columns: 1fr auto;
+      }
+
+      .release-row span {
+        grid-column: 1 / -1;
+        grid-row: 2;
+      }
+
+      .footer-inner {
+        padding: 26px 0;
+        align-items: center;
+      }
+
+      .citation-block pre {
+        padding: 18px 14px;
+      }
+
+      .citation-block code {
+        font-size: 11px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .action,
+      .figure-open::after {
+        transition: none;
       }
     }
   </style>
 </head>
 <body>
-  <main>
-    <header class="paper">
-      <h1>CLExEval: A Human-in-the-Loop Framework for Qualitative Evaluation of LLM Clinical Reasoning</h1>
-      <p class="authors">Ajmal M.<sup>1,2</sup>, Abin R.<sup>3,*</sup>, Afthab S. K.<sup>3,*</sup>, Jawadh A. K.<sup>3,*</sup>, Jerin J.<sup>3,*</sup>, Preslav Nakov<sup>1</sup>, Zhuohan Xie<sup>1</sup></p>
-      <p class="affiliations"><sup>1</sup>MBZUAI · <sup>2</sup>IIT Madras · <sup>3</sup>Calicut Medical College</p>
-      <p class="equal"><sup>*</sup>Abin R., Afthab S. K., Jawadh A. K., and Jerin J. contributed equally.</p>
-      <p class="contact">ajmal.m@mbzuai.ac.ae · zhuohan.xie@mbzuai.ac.ae</p>
-      <p class="note">Release materials are being prepared for public access.</p>
-      <nav class="links" aria-label="Project links">
-        <a href="https://24f2004489.github.io/CLExEval-Project-Page/">Project</a>
-        <a href="https://huggingface.co/datasets/AjmalMIITM/RARECASE-2000">RARECASE-2000</a>
-        <a href="https://github.com/24f2004489/CLExEval">Code</a>
-      </nav>
-    </header>
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="wordmark" href="#top">CLExEval</a>
+      <div class="nav-links">
+        <a href="#abstract">Abstract</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#release">Release</a>
+        <a href="#citation">Citation</a>
+      </div>
+    </nav>
+    <div class="scroll-progress" aria-hidden="true"></div>
+  </header>
 
-    <section class="abstract">
-      <h2>Abstract</h2>
-      <p>While Large Language Models (LLMs) reportedly ace medical exams, their clinical deployment remains precarious due to an Evaluation Illusion where benchmarks prioritize linguistic fluency over causal reasoning. To test this, we introduce CLExEval, a forensic audit of 5,600 expert-physician annotations across 200 clinical reasoning traces using Progressive Information Masking. Our analysis exposes three critical failure modes: a Verbosity Bias (GPT-4o-mini's accuracy collapses from 95.0% to 32.5% under information scarcity), a Hidden Knowledge Paradox (specialized models possess 92.5% latent knowledge, but fail in verbose contexts), and a 68.6% Reasoning-Output Mismatch from self-censoring correct internal reasoning. Crucially, evaluating the LLM-as-a-Judge paradigm on a human-verified failure dataset (n=142) reveals a severe Hallucination Approval Rate. GPT-4o-mini approved 47.9% of human-verified fatal errors, while HuatuoGPT-o1 approved 100% and showed a positive self-preference bias, suggesting that standalone automated clinical leaderboards may substantially overestimate clinical reliability.</p>
-    </section>
-
-    <section>
-      <h2>Inside the Mind of a Clinical AI</h2>
-      <figure class="figure">
-        <img src="assets/clexeval-clinical-ai.png" alt="CLExEval illustration showing hidden clinical reality, model thinking trace, final output trace, and divergent human versus machine verdict.">
-        <figcaption>Inside the mind of a clinical AI: CLExEval highlights reasoning-output mismatch, latent knowledge, verbosity bias, and hallucination approval in automated judging.</figcaption>
-      </figure>
-    </section>
-
-    <section>
-      <h2>CLExEval Pipeline</h2>
-      <figure class="figure pipeline-figure">
-        <img src="assets/clexeval-pipeline.png" alt="CLExEval pipeline covering data curation, progressive masking, model evaluation, and expert assessment.">
-        <figcaption>Overview of the CLExEval pipeline, including case curation, progressive information masking, model evaluation, and expert assessment.</figcaption>
-      </figure>
-    </section>
-
-    <section>
-      <h2>Release Status</h2>
-      <div class="status-grid">
-        <div class="status">
-          <h3>Project</h3>
-          <p>This page is live as a lightweight project preview while the full research page is finalized.</p>
+  <main id="top">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Clinical language model evaluation</p>
+        <div class="hero-title-lockup">
+          <img class="hero-logo" src="assets/clexeval-icon.png" alt="" width="96" height="110">
+          <h1 id="page-title">CLExEval</h1>
         </div>
-        <div class="status">
-          <h3>RARECASE-2000</h3>
-          <p>The dataset release is in preparation pending documentation and release review.</p>
+        <p class="subtitle">A Human-in-the-Loop Framework for Qualitative Evaluation of LLM Clinical Reasoning</p>
+
+        <p class="authors">
+          <a href="https://24f2004489.github.io/Ajmal/" target="_blank" rel="author noreferrer">Ajmal M.</a><sup>1,2</sup>, Abin R.<sup>3,*</sup>, Afthab S. K.<sup>3,*</sup>,
+          Jawadh A. K.<sup>3,*</sup>, Jerin J.<sup>3,*</sup>,
+          <a href="https://mbzuai.ac.ae/study/faculty/preslav-nakov/" target="_blank" rel="author noreferrer">Preslav Nakov</a><sup>1</sup>,
+          <a href="https://zhuohanx.github.io/" target="_blank" rel="author noreferrer">Zhuohan Xie</a><sup>1</sup>
+        </p>
+        <p class="affiliations"><sup>1</sup> MBZUAI &nbsp;·&nbsp; <sup>2</sup> IIT Madras &nbsp;·&nbsp; <sup>3</sup> Calicut Medical College</p>
+        <p class="equal"><sup>*</sup> Abin R., Afthab S. K., Jawadh A. K., and Jerin J. contributed equally.</p>
+
+        <div class="hero-actions" aria-label="Research links">
+          <a class="action" href="https://arxiv.org/abs/2606.31608" target="_blank" rel="noreferrer">Paper <span aria-hidden="true">↗</span></a>
+          <a class="action" href="#abstract">Abstract <span aria-hidden="true">↓</span></a>
+          <a class="action" href="https://huggingface.co/datasets/AjmalMIITM/RARECASE-2000" target="_blank" rel="noreferrer">Dataset <span aria-hidden="true">↗</span></a>
+          <a class="action" href="https://github.com/24f2004489/CLExEval" target="_blank" rel="noreferrer">Code <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="status">
-          <h3>Code</h3>
-          <p>Evaluation scripts and reproducibility materials will be released after cleanup.</p>
+      </div>
+
+      <div class="hero-index" aria-label="Project overview">
+        <div><span>5,600</span>expert annotations</div>
+        <div><span>200</span>reasoning traces</div>
+        <div><span>7</span>clinical dimensions</div>
+        <div><span>4</span>physician experts</div>
+      </div>
+    </section>
+
+    <section class="band band-soft" id="abstract">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="section-kicker">01 · Abstract</p>
+          <h2>Fluency can conceal clinical failure.</h2>
+        </div>
+
+        <div class="abstract-copy">
+          <p>While Large Language Models reportedly ace medical exams, their clinical deployment remains precarious due to an <strong>Evaluation Illusion</strong> where benchmarks prioritize linguistic fluency over causal reasoning. To test this, we introduce CLExEval, a forensic audit of 5,600 expert-physician annotations across 200 clinical reasoning traces using Progressive Information Masking. Our analysis exposes three critical failure modes: a Verbosity Bias (GPT-4o-mini's accuracy collapses from 95.0% to 32.5% under information scarcity), a Hidden Knowledge Paradox (specialized models possess 92.5% latent knowledge, but fail in verbose contexts), and a 68.6% Reasoning-Output Mismatch from self-censoring correct internal reasoning. Crucially, evaluating the LLM-as-a-Judge paradigm on a human-verified failure dataset (n=142) reveals a severe Hallucination Approval Rate. GPT-4o-mini approved 47.9% of human-verified fatal errors, while HuatuoGPT-o1 approved 100% and showed a positive self-preference bias, suggesting that standalone automated clinical leaderboards may substantially overestimate clinical reliability.</p>
+        </div>
+
+        <div class="findings" aria-label="Key findings">
+          <div class="finding">
+            <span class="finding-value">32.5%</span>
+            <span class="finding-title">Accuracy under scarcity</span>
+            <span class="finding-note">GPT-4o-mini falls from 95.0% as information is masked.</span>
+          </div>
+          <div class="finding">
+            <span class="finding-value">92.5%</span>
+            <span class="finding-title">Latent knowledge</span>
+            <span class="finding-note">Specialized models may know the answer but fail to commit.</span>
+          </div>
+          <div class="finding">
+            <span class="finding-value">68.6%</span>
+            <span class="finding-title">Reasoning-output mismatch</span>
+            <span class="finding-note">Correct internal reasoning is lost before the final answer.</span>
+          </div>
+          <div class="finding">
+            <span class="finding-value">100%</span>
+            <span class="finding-title">Approval of fatal errors</span>
+            <span class="finding-note">HuatuoGPT-o1 approved every verified failure in the audit.</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <footer>
-      CLExEval · Public release materials in preparation
-    </footer>
+    <section class="band" id="evidence">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="section-kicker">02 · Failure anatomy</p>
+          <h2>Inside the mind of a clinical AI.</h2>
+        </div>
+
+        <figure class="evidence">
+          <div class="evidence-frame">
+            <button
+              class="figure-open"
+              type="button"
+              data-image="assets/clexeval-clinical-ai.png"
+              data-caption="A representative reasoning-output mismatch: the correct diagnosis appears in the internal trace, the final answer diverges, and automated judges reward the fluent but incorrect output."
+              aria-label="Open the clinical AI failure diagram at full size"
+              title="Open full-size figure"
+            >
+              <img src="assets/clexeval-clinical-ai.png" alt="A CLExEval case study showing correct latent reasoning, an incorrect final diagnosis, and disagreement between automated judges and a human expert.">
+            </button>
+          </div>
+          <figcaption>A representative reasoning-output mismatch: the correct diagnosis appears in the internal trace, the final answer diverges, and automated judges reward the fluent but incorrect output.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="band band-soft" id="pipeline">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="section-kicker">03 · Method</p>
+          <h2>The CLExEval pipeline.</h2>
+        </div>
+
+        <figure class="evidence">
+          <div class="evidence-frame pipeline-frame">
+            <button
+              class="figure-open"
+              type="button"
+              data-image="assets/clexeval-pipeline.png"
+              data-caption="Expert-curated cases are progressively masked, evaluated by two clinical language models, and assessed by medical residents across a seven-dimensional rubric."
+              aria-label="Open the CLExEval pipeline at full size"
+              title="Open full-size figure"
+            >
+              <img src="assets/clexeval-pipeline.png" alt="The CLExEval pipeline from expert case curation through progressive masking, model evaluation, and expert assessment.">
+            </button>
+          </div>
+          <figcaption>Expert-curated cases are progressively masked, evaluated by two clinical language models, and assessed by medical residents across a seven-dimensional rubric.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="band" id="release">
+      <div class="section-inner release">
+        <div>
+          <p class="section-kicker">04 · Release</p>
+          <h2>Research materials.</h2>
+          <p class="release-copy">The project page is available now. Dataset documentation, evaluation code, and reproducibility materials are being prepared for public release.</p>
+        </div>
+
+        <div class="release-list">
+          <div class="release-row">
+            <strong>Paper</strong>
+            <span>Read the CLExEval preprint on arXiv.</span>
+            <a href="https://arxiv.org/abs/2606.31608" target="_blank" rel="noreferrer">Read ↗</a>
+          </div>
+          <div class="release-row">
+            <strong>Project</strong>
+            <span>This research page and visual overview.</span>
+            <a href="#top">View ↑</a>
+          </div>
+          <div class="release-row">
+            <strong>RARECASE-2000</strong>
+            <span>Dataset card active; documented release in preparation.</span>
+            <a href="https://huggingface.co/datasets/AjmalMIITM/RARECASE-2000" target="_blank" rel="noreferrer">Open ↗</a>
+          </div>
+          <div class="release-row">
+            <strong>Code</strong>
+            <span>Evaluation and reproducibility materials in preparation.</span>
+            <a href="https://github.com/24f2004489/CLExEval" target="_blank" rel="noreferrer">Open ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band band-soft" id="citation">
+      <div class="section-inner citation-layout">
+        <div>
+          <p class="section-kicker">05 · Citation</p>
+          <h2>Cite CLExEval.</h2>
+          <p class="citation-copy">If this work supports your research, please cite.</p>
+        </div>
+
+        <div class="citation-block">
+          <div class="citation-toolbar">
+            <span class="citation-label">BibTeX</span>
+            <button class="copy-citation" type="button" aria-label="Copy BibTeX citation">Copy BibTeX</button>
+          </div>
+          <pre><code id="bibtex">@misc{m2026clexevalhumanintheloopframeworkqualitative,
+      title={CLExEval: A Human-in-the-Loop Framework for Qualitative Evaluation of LLM Clinical Reasoning},
+      author={Ajmal M. and Abin Roy and Afthab Salam Kanniyan and Jawadh Abdul Kabeer and Jerin James and Preslav Nakov and Zhuohan Xie},
+      year={2026},
+      eprint={2606.31608},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2606.31608},
+}</code></pre>
+          <p class="copy-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer>
+    <div class="footer-inner">
+      <strong>CLExEval</strong>
+      <span>MBZUAI</span>
+      <span>Public release materials in preparation</span>
+    </div>
+  </footer>
+
+  <dialog class="figure-dialog" aria-label="Full-size research figure">
+    <div class="dialog-shell">
+      <button class="dialog-close" type="button" aria-label="Close figure" title="Close">×</button>
+      <img class="dialog-image" alt="">
+      <p class="dialog-caption"></p>
+    </div>
+  </dialog>
+
+  <script>
+    const progress = document.querySelector(".scroll-progress");
+    const updateProgress = () => {
+      const available = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = available > 0 ? window.scrollY / available : 0;
+      progress.style.transform = `scaleX(${Math.min(1, Math.max(0, ratio))})`;
+    };
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+
+    const navLinks = [...document.querySelectorAll('.nav-links a[href^="#"]')];
+    const sections = navLinks
+      .map((link) => document.querySelector(link.getAttribute("href")))
+      .filter(Boolean);
+
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (!visible) return;
+
+        navLinks.forEach((link) => {
+          const active = link.getAttribute("href") === `#${visible.target.id}`;
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      },
+      { rootMargin: "-25% 0px -58% 0px", threshold: [0, 0.15, 0.4] }
+    );
+
+    sections.forEach((section) => sectionObserver.observe(section));
+
+    const dialog = document.querySelector(".figure-dialog");
+    const dialogImage = dialog.querySelector(".dialog-image");
+    const dialogCaption = dialog.querySelector(".dialog-caption");
+    const dialogClose = dialog.querySelector(".dialog-close");
+    let figureTrigger = null;
+
+    document.querySelectorAll(".figure-open").forEach((button) => {
+      button.addEventListener("click", () => {
+        figureTrigger = button;
+        const image = button.querySelector("img");
+        dialogImage.src = button.dataset.image;
+        dialogImage.alt = image.alt;
+        dialogCaption.textContent = button.dataset.caption;
+        dialog.showModal();
+      });
+    });
+
+    const closeDialog = () => {
+      dialog.close();
+      figureTrigger?.focus();
+    };
+
+    dialogClose.addEventListener("click", closeDialog);
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) closeDialog();
+    });
+
+    const copyButton = document.querySelector(".copy-citation");
+    const bibtex = document.querySelector("#bibtex");
+    const copyStatus = document.querySelector(".copy-status");
+
+    copyButton.addEventListener("click", async () => {
+      const citation = bibtex.textContent.trim();
+
+      try {
+        await navigator.clipboard.writeText(citation);
+      } catch {
+        const textarea = document.createElement("textarea");
+        textarea.value = citation;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+
+      copyButton.textContent = "Copied";
+      copyStatus.textContent = "Citation copied to clipboard.";
+
+      window.setTimeout(() => {
+        copyButton.textContent = "Copy BibTeX";
+        copyStatus.textContent = "";
+      }, 1800);
+    });
+  </script>
 </body>
 </html>
